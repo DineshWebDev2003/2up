@@ -32,15 +32,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Set up Expo and EAS
-        uses: expo/expo-github-action@v8
-        with:
-          expo-version: latest
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-          packager: npm
-          expo-cache: false
-          eas-cache: false
+      - name: Setup Expo CLI
+        run: |
+          npm install -g @expo/cli
+          expo --version
+
+      - name: Login to Expo
+        run: |
+          echo "Logging in to Expo..."
+          npx expo login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
         run: npm install
