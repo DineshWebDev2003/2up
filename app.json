@@ -60,9 +60,7 @@
       "policy": "sdkVersion"
     },
     "extra": {
-      "eas": {
-        "projectId": "dineshwebdev-tn-happy-kids"
-      }
+      "eas": {}
     },
     "owner": "dineshwebdev2003",
     "privacy": "public",
