@@ -1,0 +1,284 @@
+name: 📱 TN Happy Kids - Expo Export & Build
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+        - preview
+        - production
+      platform:
+        description: 'Platform'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - android
+        - ios
+        - all
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}
+
+jobs:
+  export-web:
+    name: 🌐 Export Web Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v4
+    
+    - name: 🏗 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+    
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🌐 Export for Web
+      run: |
+        npx expo export --platform web
+        echo "✅ Web export completed successfully!"
+    
+    - name: 📤 Upload Web Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tn-happy-kids-web-build
+        path: dist/
+        retention-days: 30
+    
+    - name: 📊 Web Build Summary
+      run: |
+        echo "## 🌐 Web Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+        echo "- **Platform**: Web" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Artifact**: tn-happy-kids-web-build" >> $GITHUB_STEP_SUMMARY
+
+  build-android:
+    name: 🤖 Build Android APK
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v4
+    
+    - name: 🏗 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+    
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🤖 Build Android APK
+      run: |
+        BUILD_TYPE="${{ github.event.inputs.build_type || 'preview' }}"
+        echo "Building Android APK with type: $BUILD_TYPE"
+        eas build --platform android --profile $BUILD_TYPE --non-interactive --wait
+    
+    - name: 📱 Download Android Build
+      run: |
+        echo "Downloading latest Android build..."
+        eas build:list --platform android --limit 1 --json > build_info.json
+        BUILD_URL=$(cat build_info.json | jq -r '.[0].artifacts.buildUrl')
+        if [ "$BUILD_URL" != "null" ]; then
+          curl -L -o tn-happy-kids.apk "$BUILD_URL"
+          echo "✅ Android APK downloaded successfully!"
+        else
+          echo "❌ No build URL found"
+          exit 1
+        fi
+    
+    - name: 📤 Upload Android APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: tn-happy-kids-android-apk
+        path: tn-happy-kids.apk
+        retention-days: 30
+    
+    - name: 📊 Android Build Summary
+      run: |
+        echo "## 🤖 Android Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+        echo "- **Platform**: Android" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Type**: ${{ github.event.inputs.build_type || 'preview' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **File**: tn-happy-kids.apk" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+  build-ios:
+    name: 🍎 Build iOS IPA
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v4
+    
+    - name: 🏗 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+    
+    - name: 🏗 Setup Expo and EAS
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🍎 Build iOS IPA
+      run: |
+        BUILD_TYPE="${{ github.event.inputs.build_type || 'preview' }}"
+        echo "Building iOS IPA with type: $BUILD_TYPE"
+        eas build --platform ios --profile $BUILD_TYPE --non-interactive --wait
+    
+    - name: 📱 Download iOS Build
+      run: |
+        echo "Downloading latest iOS build..."
+        eas build:list --platform ios --limit 1 --json > build_info.json
+        BUILD_URL=$(cat build_info.json | jq -r '.[0].artifacts.buildUrl')
+        if [ "$BUILD_URL" != "null" ]; then
+          curl -L -o tn-happy-kids.ipa "$BUILD_URL"
+          echo "✅ iOS IPA downloaded successfully!"
+        else
+          echo "❌ No build URL found"
+          exit 1
+        fi
+    
+    - name: 📤 Upload iOS IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: tn-happy-kids-ios-ipa
+        path: tn-happy-kids.ipa
+        retention-days: 30
+    
+    - name: 📊 iOS Build Summary
+      run: |
+        echo "## 🍎 iOS Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+        echo "- **Platform**: iOS" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Type**: ${{ github.event.inputs.build_type || 'preview' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **File**: tn-happy-kids.ipa" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+  publish-expo:
+    name: 🚀 Publish to Expo Go
+    runs-on: ubuntu-latest
+    needs: [export-web]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v4
+    
+    - name: 🏗 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+    
+    - name: 🏗 Setup Expo
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🚀 Publish to Expo Go
+      run: |
+        echo "Publishing TN Happy Kids to Expo Go..."
+        expo publish --non-interactive
+        echo "✅ Published to Expo Go successfully!"
+    
+    - name: 📊 Expo Publish Summary
+      run: |
+        echo "## 🚀 Expo Go Publish Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Published" >> $GITHUB_STEP_SUMMARY
+        echo "- **Platform**: Expo Go" >> $GITHUB_STEP_SUMMARY
+        echo "- **Access**: Scan QR code in Expo Go app" >> $GITHUB_STEP_SUMMARY
+        echo "- **Published Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+  create-release:
+    name: 📦 Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [export-web, build-android, build-ios]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v4
+    
+    - name: 📥 Download All Artifacts
+      uses: actions/download-artifact@v4
+    
+    - name: 📦 Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: TN Happy Kids v${{ github.ref_name }}
+        body: |
+          ## 🎉 TN Happy Kids Playschool App Release
+          
+          ### 📱 What's New:
+          - Complete school management system
+          - Multi-role authentication (Admin, Teacher, Student, Captain, Franchisee)
+          - Beautiful UI with gradient design
+          - Secure session management
+          
+          ### 📦 Downloads:
+          - **Android APK**: Install directly on Android devices
+          - **iOS IPA**: Install via TestFlight or enterprise distribution
+          - **Web Build**: Deploy to any web server
+          
+          ### 🚀 Installation:
+          1. Download the appropriate file for your platform
+          2. For Android: Enable "Install from unknown sources" and install APK
+          3. For iOS: Use TestFlight or enterprise distribution
+          4. For Web: Extract and deploy to web server
+          
+          ### 🧪 Test Credentials:
+          - admin, student, teacher, captain, franchisee, tuition student, tuition teacher
+          
+          ---
+          **Built with ❤️ for TN Happy Kids Playschool**
+        files: |
+          tn-happy-kids-android-apk/tn-happy-kids.apk
+          tn-happy-kids-ios-ipa/tn-happy-kids.ipa
+          tn-happy-kids-web-build/**/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

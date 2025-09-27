@@ -13,10 +13,16 @@
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "export": "expo export",
+    "export:web": "expo export --platform web",
     "build:android": "eas build --platform android",
-    "build:ios": "eas build --platform ios",
+    "build:ios": "eas build --platform ios", 
     "build:all": "eas build --platform all",
+    "build:preview": "eas build --profile preview",
+    "build:production": "eas build --profile production",
     "publish": "expo publish",
+    "submit:android": "eas submit --platform android",
+    "submit:ios": "eas submit --platform ios",
     "eject": "expo eject"
   },
   "dependencies": {
