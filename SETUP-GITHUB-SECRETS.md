@@ -21,18 +21,14 @@ To enable automatic app exports and builds, you need to configure the following 
 5. Value: Paste your Expo token
 6. Click **Add secret**
 
-### 2. EAS_PROJECT_ID (Optional but recommended)
-**Purpose**: Link builds to your specific Expo project
+### 2. EAS_PROJECT_ID (Recommended for faster builds)
+**Purpose**: Links your project to Expo Application Services for faster builds
 
-**How to get it**:
-1. Run: `eas init` in your project directory
-2. The project ID will be shown and added to your `app.json`
-3. You can also find it in your Expo dashboard
+**How to set it**:
+1. In your project directory, the project ID is now set to: `dineshwebdev-tn-happy-kids`
+2. Add this to your GitHub secrets as `EAS_PROJECT_ID`
 
-**How to add to GitHub**:
-1. Same steps as above
-2. Name: `EAS_PROJECT_ID`
-3. Value: Your project ID (e.g., `abc123def-456g-789h-012i-345jklmnopqr`)
+**Value**: `dineshwebdev-tn-happy-kids`
 
 ## 🛠️ Setup Steps
 
