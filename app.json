@@ -1,29 +1,72 @@
 {
   "expo": {
-    "name": "happy-kids-app",
-    "slug": "happy-kids-app",
+    "name": "TN Happy Kids",
+    "slug": "tn-happy-kids-playschool",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "description": "Comprehensive school management system for TN Happy Kids Playschool with multi-role authentication, attendance tracking, and real-time communication.",
+    "keywords": ["school", "management", "playschool", "education", "attendance", "react-native"],
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#8B5CF6"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dineshwebdev.tnhappykids",
+      "buildNumber": "1.0.0",
+      "icon": "./assets/icon.png"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#8B5CF6"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.dineshwebdev.tnhappykids",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "NOTIFICATIONS"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "name": "TN Happy Kids Playschool",
+      "shortName": "TN Happy Kids",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#8B5CF6",
+      "backgroundColor": "#ffffff"
+    },
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#8B5CF6",
+      "androidMode": "default",
+      "androidCollapsedTitle": "TN Happy Kids"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/your-project-id"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
+    "owner": "dineshwebdev2003",
+    "privacy": "public",
+    "platforms": ["ios", "android", "web"],
+    "githubUrl": "https://github.com/DineshWebDev2003/2up"
   }
 }
