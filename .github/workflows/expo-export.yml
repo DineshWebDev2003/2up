@@ -45,38 +45,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Initialize EAS Project
+      - name: Build Android APK (Expo CLI)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          echo "🔧 Initializing EAS project..."
-          eas init --yes --force
-          echo "✅ EAS project initialized successfully"
-
-      - name: Build Android APK (Preview)
-        id: eas-build-android
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          echo "🚀 Building Android APK..."
-          BUILD_OUTPUT=$(eas build --platform android --profile preview --non-interactive --json)
-          echo "$BUILD_OUTPUT"
-          BUILD_URL=$(echo $BUILD_OUTPUT | jq -r '.[0].artifacts.buildUrl')
-          echo "ANDROID_BUILD_URL=$BUILD_URL" >> $GITHUB_ENV
-          echo "✅ Android build completed: $BUILD_URL"
-
-      - name: Download Android APK
-        run: |
-          echo "📱 Downloading Android APK..."
-          curl -o tn-happykids-playschool.apk "$ANDROID_BUILD_URL"
-          ls -la tn-happykids-playschool.apk
-
-      - name: Upload Android APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: tn-happykids-playschool-android
-          path: tn-happykids-playschool.apk
-          retention-days: 30
+          echo "🚀 Building Android APK with Expo CLI..."
+          npx expo build:android --type apk --non-interactive --no-wait
+          echo "✅ Expo build command executed"
+          
+          # Wait a moment for build to start
+          sleep 10
+          
+          # Get build status
+          npx expo build:list --platform android --limit 1 --json > build_status.json
+          BUILD_ID=$(cat build_status.json | jq -r '.[0].id')
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_ENV
+          
+          echo "⏳ Build started with ID: $BUILD_ID"
+          echo "📱 Monitor build status at: https://expo.dev/builds"
 
       - name: Create Release (if on main branch)
         if: github.ref == 'refs/heads/main'
