@@ -45,6 +45,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Initialize EAS Project
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          echo "🔧 Initializing EAS project..."
+          eas init --yes --force
+          echo "✅ EAS project initialized successfully"
+
       - name: Build Android APK (Preview)
         id: eas-build-android
         env:
