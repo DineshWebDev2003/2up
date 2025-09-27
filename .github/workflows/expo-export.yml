@@ -35,7 +35,9 @@ jobs:
       - name: Setup Expo CLI
         run: |
           npm install -g @expo/cli
-          expo --version
+          export PATH="$PATH:$(npm config get prefix)/bin"
+          echo "Expo CLI installed at: $(which expo || echo 'not found')"
+          npx expo --version
 
       - name: Login to Expo
         run: |
